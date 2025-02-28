@@ -6,6 +6,7 @@ const app =express();
 const cookieParser=require('cookie-parser');
 const connectTODb=require('./db/db')
 const userRoutes=require('./routes/user.routes')
+const captainRoutes=require('./routes/captain.routes')
 
 connectTODb();
 
@@ -20,6 +21,7 @@ app.get('/',(req,res)=>{
 })
 
 app.use('/users',userRoutes)
+app.use('/captains',captainRoutes)
 
 
 
