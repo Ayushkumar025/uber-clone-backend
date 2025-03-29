@@ -63,10 +63,25 @@ module.exports.getUserProfile=async(req,res,next)=>{
     res.status(200).json({user:req.user});
 }
 
-module.exports.logoutUser=async(req,res,next)=>{
-    res.clearCookie('token');
-    const token = req.cookies.token || req.headers.authorization.split(' ')[ 1 ];
+module.exports.logoutUser = async (req, res, next) => {
+    try {
+        res.clearCookie("token");
+        const token = req.cookies.token || (req.headers.authorization && req.headers.authorization.split(" ")[1]);
 
-    await blacklistTokenModel.create({ token });
-    res.status(200).json({message:'Logged out'})
-}
+        if (!token) {
+            return res.status(400).json({ message: "No token provided" });
+        }
+
+        // Check if token already exists in the blacklist
+        const existingToken = await blacklistTokenModel.findOne({ token });
+
+        if (!existingToken) {
+            await blacklistTokenModel.create({ token });
+        }
+
+        res.status(200).json({ message: "Logged out successfully" });
+    } catch (error) {
+        console.error("Logout Error:", error);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+};
